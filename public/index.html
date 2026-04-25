@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saint — Instagram Post Duplicator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: #FF2BAA;
+      --pink-light: #FF6CC8;
+      --purple: #6B0FA0;
+      --purple-dark: #3D0860;
+      --bg: #0D0118;
+      --bg2: #120220;
+      --bg3: #1a0330;
+      --text: #F5F0FF;
+      --muted: #A090BB;
+      --border: rgba(255,43,170,0.15);
+      --border-hover: rgba(255,43,170,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+    ::selection { background: var(--pink); color: #fff; }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,1,24,0.9);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 1px;
+      color: white;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--text), var(--pink-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: -2px;
+    }
+
+    .header-badge {
+      font-size: 11px;
+      color: var(--pink);
+      background: rgba(255,43,170,0.1);
+      border: 1px solid rgba(255,43,170,0.25);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* API KEYS PANEL */
+    .api-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+    }
+
+    .api-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .api-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .api-panel-title::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+    }
+
+    .toggle-btn {
+      font-size: 11px;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn:hover { color: var(--text); border-color: var(--border-hover); }
+
+    .api-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], input[type="password"], textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    textarea:focus {
+      border-color: rgba(255,43,170,0.5);
+      box-shadow: 0 0 0 3px rgba(255,43,170,0.08);
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* WORKSPACE */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* PANELS */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .panel-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* SCREENSHOT DROP ZONE */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--pink);
+      background: rgba(255,43,170,0.04);
+    }
+
+    .drop-zone.has-image { border-style: solid; border-color: rgba(255,43,170,0.3); }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      font-size: 40px;
+      opacity: 0.4;
+    }
+
+    .drop-label {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .drop-hint {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    #preview-img {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 8px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .paste-hint {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.7;
+      text-align: center;
+    }
+
+    kbd {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-family: monospace;
+    }
+
+    .brand-section label {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* GENERATE BTN */
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .generate-btn:hover { opacity: 0.9; }
+    .generate-btn:active { transform: scale(0.99); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-icon { font-size: 18px; }
+
+    /* RESULTS */
+    .result-section {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .result-section.visible { display: flex; }
+
+    .result-block {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .result-block-header {
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-block-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .copy-btn {
+      font-size: 11px;
+      color: var(--pink);
+      background: none;
+      border: 1px solid rgba(255,43,170,0.25);
+      padding: 3px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover { background: rgba(255,43,170,0.1); }
+    .copy-btn.copied { color: #00c896; border-color: rgba(0,200,150,0.3); }
+
+    .result-block-body {
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-block-body.mono {
+      font-family: monospace;
+      font-size: 12px;
+      color: #c8b8e8;
+      opacity: 0.85;
+    }
+
+    .theme-tag {
+      display: inline-block;
+      background: linear-gradient(90deg, rgba(107,15,160,0.3), rgba(255,43,170,0.15));
+      border: 1px solid rgba(255,43,170,0.2);
+      color: var(--pink-light);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* GENERATED IMAGE */
+    .generated-image-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+
+    .generated-image-wrap img {
+      width: 100%;
+      display: block;
+      border-radius: 0;
+    }
+
+    .image-loading {
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* SPINNER */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,43,170,0.2);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .spinner-sm {
+      width: 18px;
+      height: 18px;
+      border-width: 2px;
+      display: inline-block;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      min-height: 300px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      opacity: 0.2;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.5;
+    }
+
+    .empty-hint {
+      font-size: 13px;
+      opacity: 0.35;
+      max-width: 220px;
+    }
+
+    /* ERROR */
+    .error-msg {
+      background: rgba(255,60,60,0.08);
+      border: 1px solid rgba(255,60,60,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #ff9090;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* LOADING OVERLAY */
+    .loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 60px 24px;
+      text-align: center;
+      min-height: 300px;
+    }
+
+    .loading-state.visible { display: flex; }
+
+    .loading-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    .loading-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0.5;
+      transition: opacity 0.4s;
+    }
+
+    .loading-step.active { opacity: 1; color: var(--text); }
+    .loading-step.done { opacity: 0.7; }
+    .loading-step.done .step-dot { background: #00c896; }
+
+    .step-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      flex-shrink: 0;
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+      .api-fields { grid-template-columns: 1fr; }
+      header { padding: 16px 20px; }
+      main { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="/logo.png" alt="Saint Model Management" style="height:42px;background:#fff;border-radius:8px;padding:4px 10px;" />
+  </div>
+  <div class="header-badge">Post Duplicator</div>
+</header>
+
+<main>
+
+  <!-- STATUS BAR -->
+  <div class="api-panel" style="padding:14px 28px;">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div class="api-panel-title">Status</div>
+      <div id="status-anthropic" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
+        <span id="dot-anthropic" style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;display:inline-block;"></span>
+        <span id="label-anthropic">Claude — checking...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- LEFT: INPUT -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-dot" style="background: var(--pink)"></div>
+        <div class="panel-title">Original Post</div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Screenshot Upload -->
+        <div>
+          <label style="margin-bottom:8px;display:block;">Screenshot</label>
+          <div class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" accept="image/*" />
+            <div id="drop-placeholder">
+              <div class="drop-icon">📸</div>
+              <div class="drop-label">Drop screenshot here or click to upload</div>
+              <div class="drop-hint">PNG, JPG, WebP — max 20MB</div>
+            </div>
+            <img id="preview-img" alt="Screenshot preview" />
+          </div>
+          <div class="paste-hint" style="margin-top:8px;">
+            Or press <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste a screenshot
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="error-msg"></div>
+
+        <!-- Generate Button -->
+        <button class="generate-btn" id="generate-btn" onclick="generate()">
+          <span class="btn-icon">✦</span>
+          Generate Brand Post
+        </button>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: OUTPUT -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-dot" style="background: var(--purple)"></div>
+        <div class="panel-title">Generated Post</div>
+      </div>
+      <div class="panel-body" id="output-panel">
+
+        <!-- Empty state -->
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">✦</div>
+          <div class="empty-title">Results appear here</div>
+          <div class="empty-hint">Upload a screenshot and click Generate to create your brand post</div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="loading-state" id="loading-state">
+          <div class="spinner"></div>
+          <div class="loading-title">Crafting your post...</div>
+          <div class="loading-steps">
+            <div class="loading-step active" id="step-1">
+              <div class="step-dot"></div>
+              Analyzing screenshot with Claude
+            </div>
+            <div class="loading-step" id="step-2">
+              <div class="step-dot"></div>
+              Generating brand caption
+            </div>
+            <div class="loading-step" id="step-3">
+              <div class="step-dot"></div>
+              Building branded post…
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="result-section" id="results">
+
+          <!-- Branded post preview + download -->
+          <div class="result-block">
+            <div class="result-block-header">
+              <span class="result-block-label">Branded Post — 1080×1080</span>
+              <button class="copy-btn" id="download-btn" onclick="downloadPost()">Download ↓</button>
+            </div>
+            <div id="post-preview-wrap" style="background:#000;border-radius:0 0 12px 12px;overflow:hidden;position:relative;">
+              <iframe id="post-iframe"
+                style="width:1080px;height:1080px;border:none;transform-origin:top left;display:block;"
+                sandbox="allow-same-origin allow-scripts"></iframe>
+              <canvas id="post-canvas" style="display:none;"></canvas>
+            </div>
+          </div>
+
+          <!-- Caption -->
+          <div class="result-block">
+            <div class="result-block-header">
+              <span class="result-block-label">Instagram Caption</span>
+              <button class="copy-btn" onclick="copyText('result-caption', this)">Copy</button>
+            </div>
+            <div class="result-block-body" id="result-caption"></div>
+          </div>
+
+          <!-- Extracted text -->
+          <div class="result-block">
+            <div class="result-block-header">
+              <span class="result-block-label">Extracted Text from Original</span>
+            </div>
+            <div class="result-block-body mono" id="result-extracted"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let currentImageBase64 = null
+  let currentImageType = null
+  let currentHtml = null
+
+  // ── API PANEL TOGGLE ──────────────────────────────────────────
+  // ── DRAG & DROP ───────────────────────────────────────────────
+  const dropZone = document.getElementById('drop-zone')
+  const fileInput = document.getElementById('file-input')
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault()
+    dropZone.classList.add('drag-over')
+  })
+
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'))
+
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault()
+    dropZone.classList.remove('drag-over')
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) loadImageFile(file)
+  })
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadImageFile(fileInput.files[0])
+  })
+
+  // ── CLIPBOARD PASTE ───────────────────────────────────────────
+  document.addEventListener('paste', e => {
+    const items = Array.from(e.clipboardData.items)
+    const imageItem = items.find(i => i.type.startsWith('image/'))
+    if (imageItem) {
+      const file = imageItem.getAsFile()
+      if (file) loadImageFile(file)
+    }
+  })
+
+  function loadImageFile(file) {
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const original = ev.target.result
+      // Set original immediately so Generate works even before compression
+      currentImageBase64 = original
+      currentImageType = file.type || 'image/png'
+      // Show preview
+      const img = document.getElementById('preview-img')
+      img.src = original
+      img.style.display = 'block'
+      document.getElementById('drop-placeholder').style.display = 'none'
+      dropZone.classList.add('has-image')
+      clearError()
+      // Compress in background and swap when ready
+      compressImage(original, 1500, 0.82, compressed => {
+        currentImageBase64 = compressed
+        currentImageType = 'image/jpeg'
+      })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  function compressImage(dataUrl, maxPx, quality, callback) {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      let { width, height } = img
+      if (width > maxPx || height > maxPx) {
+        if (width > height) { height = Math.round(height * maxPx / width); width = maxPx }
+        else { width = Math.round(width * maxPx / height); height = maxPx }
+      }
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+      callback(canvas.toDataURL('image/jpeg', quality))
+    }
+    img.src = dataUrl
+  }
+
+  // ── GENERATE ──────────────────────────────────────────────────
+  async function generate() {
+    if (!currentImageBase64) return showError('Please upload or paste an Instagram screenshot first.')
+
+    clearError()
+    setLoading(true)
+
+    const steps = ['step-1', 'step-2', 'step-3']
+    let stepIdx = 0
+    document.getElementById('step-1').classList.add('active')
+
+    const stepTimer = setInterval(() => {
+      if (stepIdx < steps.length - 1) {
+        document.getElementById(steps[stepIdx]).classList.remove('active')
+        document.getElementById(steps[stepIdx]).classList.add('done')
+        stepIdx++
+        document.getElementById(steps[stepIdx]).classList.add('active')
+      }
+    }, 2500)
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: currentImageBase64,
+          imageType: currentImageType
+        })
+      })
+
+      clearInterval(stepTimer)
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Something went wrong. Please try again.')
+      }
+
+      showResults(data)
+    } catch (err) {
+      clearInterval(stepTimer)
+      setLoading(false)
+      showError(err.message)
+    }
+  }
+
+  function showResults(data) {
+    setLoading(false)
+
+    document.getElementById('empty-state').style.display = 'none'
+    document.getElementById('loading-state').classList.remove('visible')
+    document.getElementById('results').classList.add('visible')
+
+    const a = data.analysis
+    currentHtml = a.html || ''
+
+    // Render HTML into iframe and scale it to fit the panel
+    const iframe = document.getElementById('post-iframe')
+    const wrap = document.getElementById('post-preview-wrap')
+    iframe.srcdoc = currentHtml
+
+    // Scale the 1080px iframe down to fit the container width
+    function scaleIframe() {
+      const scale = wrap.offsetWidth / 1080
+      iframe.style.transform = `scale(${scale})`
+      wrap.style.height = (1080 * scale) + 'px'
+    }
+    scaleIframe()
+    window.addEventListener('resize', scaleIframe)
+
+    document.getElementById('result-caption').textContent = a.brandedCaption || ''
+    document.getElementById('result-extracted').textContent = a.extractedText || ''
+  }
+
+  async function downloadPost() {
+    if (!currentHtml) return
+    const btn = document.getElementById('download-btn')
+    btn.textContent = 'Rendering…'
+    btn.disabled = true
+
+    try {
+      const iframe = document.getElementById('post-iframe')
+      const iframeWin = iframe.contentWindow
+      const iframeDoc = iframe.contentDocument
+
+      // Inject html2canvas into the already-rendered iframe
+      if (!iframeWin.html2canvas) {
+        const script = iframeDoc.createElement('script')
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
+        iframeDoc.head.appendChild(script)
+        await new Promise((resolve, reject) => {
+          script.onload = resolve
+          script.onerror = reject
+          setTimeout(reject, 10000)
+        })
+      }
+
+      const canvas = await iframeWin.html2canvas(iframeDoc.body, {
+        width: 1080, height: 1080,
+        scale: 1, useCORS: true, logging: false
+      })
+
+      const link = document.createElement('a')
+      link.download = `saint-post-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+
+      btn.textContent = 'Downloaded!'
+      setTimeout(() => { btn.textContent = 'Download ↓'; btn.disabled = false }, 2000)
+    } catch (e) {
+      btn.textContent = 'Download ↓'
+      btn.disabled = false
+      showError('Download failed: ' + e.message)
+    }
+  }
+
+  // ── UI HELPERS ────────────────────────────────────────────────
+  function setLoading(loading) {
+    const btn = document.getElementById('generate-btn')
+    const emptyState = document.getElementById('empty-state')
+    const loadingState = document.getElementById('loading-state')
+    const results = document.getElementById('results')
+
+    btn.disabled = loading
+
+    if (loading) {
+      btn.innerHTML = `<div class="spinner spinner-sm"></div> Generating...`
+      emptyState.style.display = 'none'
+      results.classList.remove('visible')
+      loadingState.classList.add('visible')
+      // Reset steps
+      document.querySelectorAll('.loading-step').forEach(el => {
+        el.classList.remove('active', 'done')
+      })
+    } else {
+      btn.innerHTML = `<span class="btn-icon">✦</span> Generate Brand Post`
+      loadingState.classList.remove('visible')
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg')
+    el.textContent = msg
+    el.classList.add('visible')
+    setLoading(false)
+  }
+
+  function clearError() {
+    const el = document.getElementById('error-msg')
+    el.textContent = ''
+    el.classList.remove('visible')
+  }
+
+  async function copyText(elementId, btn) {
+    const text = document.getElementById(elementId).textContent
+    try {
+      await navigator.clipboard.writeText(text)
+      btn.textContent = 'Copied!'
+      btn.classList.add('copied')
+      setTimeout(() => {
+        btn.textContent = 'Copy'
+        btn.classList.remove('copied')
+      }, 2000)
+    } catch {
+      btn.textContent = 'Failed'
+      setTimeout(() => { btn.textContent = 'Copy' }, 2000)
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+  }
+
+  async function downloadImage(url) {
+    try {
+      const btn = document.getElementById('download-btn')
+      btn.textContent = 'Downloading…'
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `saint-post-${Date.now()}.jpg`
+      a.click()
+      btn.textContent = 'Downloaded!'
+      setTimeout(() => { btn.textContent = 'Download' }, 2000)
+    } catch {
+      window.open(url, '_blank')
+    }
+  }
+
+  // Check API status on load
+  fetch('/api/status').then(r => r.json()).then(s => {
+    if (s.anthropic) {
+      document.getElementById('dot-anthropic').style.background = '#00c896'
+      document.getElementById('status-anthropic').style.color = '#00c896'
+      document.getElementById('label-anthropic').textContent = 'Claude — connected ✓'
+    } else {
+      document.getElementById('dot-anthropic').style.background = '#ff6060'
+      document.getElementById('status-anthropic').style.color = '#ff9090'
+      document.getElementById('label-anthropic').textContent = 'Claude — add key to .env'
+    }
+  }).catch(() => {})
+</script>
+</body>
+</html>
