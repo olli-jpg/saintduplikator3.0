@@ -128,7 +128,7 @@ Return exactly this JSON (no other text):
 
     const anthropic = new Anthropic({ apiKey: ANTHROPIC_KEY })
     const claudeResponse = await anthropic.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-sonnet-4-5',
       max_tokens: 8000,
       system: systemPrompt,
       messages: [{
