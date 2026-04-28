@@ -20,15 +20,14 @@ const app = express()
 app.use(express.json({ limit: '25mb' }))
 app.use(express.static(path.join(__dirname, 'public')))
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY
-
 app.get('/api/status', (_req, res) => {
-  res.json({ anthropic: !!ANTHROPIC_KEY })
+  res.json({ anthropic: !!process.env.ANTHROPIC_API_KEY })
 })
 
 app.post('/api/generate', async (req, res) => {
   try {
     const { imageBase64, imageType } = req.body
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY
 
     if (!ANTHROPIC_KEY) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
